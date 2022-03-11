@@ -12,6 +12,8 @@ font = pygame.font.Font(None, 24)
 
 appRun = True
 
+fps = 59
+
 weiß = (255,255,255)
 schwarz = (0,0,0)
 rot = (255,0,0)
@@ -33,7 +35,7 @@ counter = 0
 counterGegner = 0
 
 reihen = 3
-level = 1
+level = 0
 bewRichtung = 2
 gegnerSchiffe = []
 
@@ -95,10 +97,21 @@ def gegnerBew():
             j.posx += j.bewRichtung
 
 def bewRichtungAendern():
+    bewändern = False
     for i in gegnerSchiffe:
-        for j in i:
-            j.bewRichtung *= -1
-            j.posy += 20
+        anzahl = len(i)
+        if anzahl > 0 and (i[0].posx < 20 or i[anzahl-1].posx > 545):
+            bewändern = True
+    if bewändern == True:
+        for i in gegnerSchiffe:
+            for j in i:
+                j.bewRichtung *= -1
+                j.posy += 20
+                if j.bewRichtung < 0:
+                    j.posx -= 1
+                else:
+                    j.posx += 1
+
 
 def trefferAuswerten():
     schiffeEntfernen = []
@@ -111,15 +124,16 @@ def trefferAuswerten():
                     i.getroffen = True
                     #schiffeEntfernen.append()
                     print(schiffeEntfernen)"""
-        for j in range(gegnerSchiffe):
-            schiffe = j
-            for k in range(schiffe):
-                schiffe = k
-                if i.posx <= k.posx + 32 and i.posy <= k.posy + 32 and i.posx >= k.posx and i.posy >= k.posy and k.getroffen == False:
-                    k.getroffen = True
+        for j in range(len(gegnerSchiffe)):
+            schiffe = gegnerSchiffe[j-1]
+            for k in range(len(schiffe)):
+                schiff = schiffe[k-1]
+                if i.posx <= schiff.posx + 32 and i.posy <= schiff.posy + 32 and i.posx >= schiff.posx and i.posy >= schiff.posy and schiff.getroffen == False:
+                    schiff.getroffen = True
                     i.getroffen = True
-                    # schiffeEntfernen.append()
-                    print(schiffeEntfernen)
+                    schiffe.remove(schiff)
+            if len(schiffe) == 0:
+                gegnerSchiffe.pop(j-1)
 
 while appRun:
     for event in pygame.event.get():
@@ -144,6 +158,7 @@ while appRun:
     if len(gegnerSchiffe) == 0:
         gegnerY = 20
         gegnerX = 20
+        level += 1
         bewRichtung = level
         richtung = bewRichtung
         for i in range(reihen):
@@ -164,11 +179,9 @@ while appRun:
     spielerBew()
     spielerZeichnen()
     trefferAuswerten()
-    if counterGegner >= 140/level:
-        bewRichtungAendern()
-        counterGegner = 0
-    else:
-        counterGegner += 1
+
+    bewRichtungAendern()
+
     if counter == 3:
         gegnerBew()
         counter = 0
@@ -177,7 +190,8 @@ while appRun:
     gegnerZeichnen()
     schussBew()
     pygame.display.flip()
-    clock.tick(60)
+    clock.tick(fps)
+    print(len(gegnerSchiffe))
 
 pygame.quit()
 sys.exit()
