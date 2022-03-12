@@ -1,6 +1,8 @@
 import sys
 import pygame
+from random import choice
 from pygame import *
+
 
 pygame.init()
 
@@ -12,11 +14,15 @@ font = pygame.font.Font(None, 24)
 
 appRun = True
 
-fps = 59
+fps = 60
 
 weiß = (255,255,255)
 schwarz = (0,0,0)
 rot = (255,0,0)
+gruen = (0,255,0)
+
+farben = [rot,rot,rot,rot, gruen]
+farbeü = rot
 
 spielerX = 250
 spielerY = 360
@@ -51,13 +57,14 @@ class schuss():
 
 class GeneriereGegner():
 
-    def __init__(self, posx = gegnerX, posy = gegnerY,z = bewRichtung, x = 32, y = 32, getroffen = False ):
+    def __init__(self, posx = gegnerX, posy = gegnerY,z = bewRichtung,farbe = farbeü, x = 32, y = 32, getroffen = False):
         self.posx = posx
         self.posy = posy
         self.x = x
         self.y = y
         self.bewRichtung = z
         self.getroffen = getroffen
+        self.farbe = farbe
 
 def schussBew():
     global schuesse
@@ -81,7 +88,7 @@ def gegnerZeichnen():
     for i in gegnerSchiffe:
         for j in i:
             if j.getroffen == False:
-                pygame.draw.rect(fenster, rot,(j.posx, j.posy,j.x,j.y))
+                pygame.draw.rect(fenster, j.farbe,(j.posx, j.posy,j.x,j.y))
 
 def spielerBew():
     global spielerX
@@ -114,24 +121,17 @@ def bewRichtungAendern():
 
 
 def trefferAuswerten():
-    schiffeEntfernen = []
+    global fps
     for i in schuesse:
-        """
-        for j in gegnerSchiffe:
-            for k in j:
-                  if i.posx <= k.posx+32 and i.posy <= k.posy + 32 and i.posx >= k.posx and i.posy >= k.posy and k.getroffen == False:
-                    k.getroffen = True
-                    i.getroffen = True
-                    #schiffeEntfernen.append()
-                    print(schiffeEntfernen)"""
         for j in range(len(gegnerSchiffe)):
             schiffe = gegnerSchiffe[j-1]
             for k in range(len(schiffe)):
                 schiff = schiffe[k-1]
-                if i.posx <= schiff.posx + 32 and i.posy <= schiff.posy + 32 and i.posx >= schiff.posx and i.posy >= schiff.posy and schiff.getroffen == False:
+                if i.posx <= schiff.posx + 32 and i.posy <= schiff.posy + 32 and i.posx + i.x >= schiff.posx and i.posy >= schiff.posy and schiff.getroffen == False:
                     schiff.getroffen = True
-                    i.getroffen = True
+                    #i.getroffen = True
                     schiffe.remove(schiff)
+                    fps += 5
             if len(schiffe) == 0:
                 gegnerSchiffe.pop(j-1)
 
@@ -158,6 +158,7 @@ while appRun:
     if len(gegnerSchiffe) == 0:
         gegnerY = 20
         gegnerX = 20
+        fps = 60
         level += 1
         bewRichtung = level
         richtung = bewRichtung
@@ -168,7 +169,8 @@ while appRun:
             if i % 2 == 0:
                 gegnerX = 20
             for j in range(8):
-                gegner = GeneriereGegner(gegnerX,gegnerY,richtung)
+                farbeü = choice(farben)
+                gegner = GeneriereGegner(gegnerX,gegnerY,richtung, farbeü)
                 schiffe.append(gegner)
                 gegnerX += 70
             gegnerSchiffe.append(schiffe)
@@ -182,7 +184,7 @@ while appRun:
 
     bewRichtungAendern()
 
-    if counter == 3:
+    if counter >= 3:
         gegnerBew()
         counter = 0
     else:
