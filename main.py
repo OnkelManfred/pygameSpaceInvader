@@ -16,6 +16,8 @@ appRun = True
 
 fps = 60
 
+spielerSchiff = pygame.image.load("Bilder/schiff.png").convert_alpha()
+
 weiß = (255,255,255)
 schwarz = (0,0,0)
 rot = (255,0,0)
@@ -82,7 +84,8 @@ def schussBew():
 
 
 def spielerZeichnen():
-    pygame.draw.rect(fenster,rot,(spielerX, spielerY, spielerBreite, spielerHoehe))
+    #pygame.draw.rect(fenster,rot,(spielerX, spielerY, spielerBreite, spielerHoehe))
+    fenster.blit(spielerSchiff, (spielerX, spielerY))
 
 def gegnerZeichnen():
     for i in gegnerSchiffe:
@@ -129,7 +132,7 @@ def trefferAuswerten():
                 schiff = schiffe[k-1]
                 if i.posx <= schiff.posx + 32 and i.posy <= schiff.posy + 32 and i.posx + i.x >= schiff.posx and i.posy >= schiff.posy and schiff.getroffen == False:
                     schiff.getroffen = True
-                    #i.getroffen = True
+                    i.getroffen = True
                     schiffe.remove(schiff)
                     fps += 5
             if len(schiffe) == 0:
